@@ -1,3 +1,6 @@
 [submodule "libef3usb"]
 	path = libef3usb
 	url = ../libef3usb/
+[submodule "easyprog"]
+	path = easyprog
+	url = ../easyprog
