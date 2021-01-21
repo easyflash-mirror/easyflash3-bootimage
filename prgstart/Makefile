@@ -9,20 +9,21 @@ ifneq "$(release)" "yes"
 else
 	version := 1.0.0
 endif
-bin2efcrt = ../../EasySDK/tools/bin2efcrt
+
+bin2efcrt := ../tools/bin2efcrt
 
 obj :=
 obj += obj/prgstart.o
 obj += obj/prg.o
 
 inc      := src
-inc      += ../../libs/libef3usb/src
+inc      += ../libef3usb/src
 
 INCLUDE  := $(addprefix -I,$(inc))
 
 DEFINE   := -DEFVERSION=\"${version}\"
 
-libef3usb := ../../libs/libef3usb/libef3usb.lib
+libef3usb := ../libef3usb/libef3usb.lib
 
 .PHONY: all
 all: $(name).crt
@@ -46,12 +47,15 @@ obj/%.o: src/%.s | obj
 ###############################################################################
 # create a crt image from a binary image
 #
-%.crt: %.bin
+%.crt: %.bin $(bin2efcrt)
 	$(bin2efcrt) $< $@
 
 ###############################################################################
 #
 $(libef3usb): force
+	$(MAKE) -C $(dir $@)
+
+$(bin2efcrt): force
 	$(MAKE) -C $(dir $@)
 
 .PHONY: force

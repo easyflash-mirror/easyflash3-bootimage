@@ -39,7 +39,7 @@
 
 
 # uncompressed version of EasyProg
-easyprog    := ../EasyProg/easyprog
+easyprog    := easyprog/easyprog
 
 ifneq "$(release)" "yes"
 	version := $(shell date +%y%m%d-%H%M)
@@ -64,6 +64,17 @@ else
 all: $(prj)-init.crt $(prj)-menu.crt
 endif
 
+libef3usb/Makefile easyprog/Makefile:
+	$(warning )
+	$(warning *** Submodules missing, please use 'git clone --recurse-submodules' next time.)
+	$(warning *** Or use 'make submodules' now.)
+	$(warning )
+	$(error Giving up)
+
+.PHONY: submodules
+submodules:
+	git submodule update --init --recursive
+
 $(dirname).zip: $(prj)-init.crt $(prj)-menu.crt CHANGES.txt README.txt
 	rm -rf $(dirname)
 	rm -f $@
@@ -77,22 +88,15 @@ $(dirname).zip: $(prj)-init.crt $(prj)-menu.crt CHANGES.txt README.txt
 ###############################################################################
 # These files are in "menu" image and "initial" image
 
-menu_image  := trampoline.bin                           0x00 0x1F00 H
-menu_image  += efmenu/efmenu.bin                        0x08 0x0000 LH
-menu_image  += $(easyprog)                              0x09 0x0000 LH
-menu_image  += prgstart/prgstart.bin                    0x0b 0x0000 LH
-#menu_image  += ef3kernal/out/ef3kernal_b0.bin           0x18 0x0000 L
-#menu_image  += ef3kernal/out/ef3kernal_b1.bin           0x19 0x0000 L
-
-#menu_image += waterdrop.raw        0x0f 0x0000
-#menu_image += bing.raw        0x0f 0x0000
-
+menu_image  := trampoline.bin        0x00 0x1F00 H
+menu_image  += efmenu/efmenu.bin     0x08 0x0000 LH
+menu_image  += $(easyprog)           0x09 0x0000 LH
+menu_image  += prgstart/prgstart.bin 0x0b 0x0000 LH
 
 menu_deps   := trampoline.bin
 menu_deps   += efmenu/efmenu.bin
 menu_deps   += $(easyprog)
 menu_deps   += prgstart/prgstart.bin
-#menu_deps   += ef3kernal_phony
 
 ###############################################################################
 # These files are in and "initial" image only
@@ -100,45 +104,45 @@ menu_deps   += prgstart/prgstart.bin
 init_image :=
 
 ifeq "$(variant)" "jb"
-    init_image  += directory-jb.bin                     0x10 0x0000 L
+    init_image  += directory-jb.bin 0x10 0x0000 L
 
-    init_image  += images/kernal.901227-01.bin          0x00 0x0000 L
-    init_image  += images/kernal.901227-02.bin          0x01 0x0000 L
-    init_image  += images/kernal.901227-03.bin          0x02 0x0000 L
-    init_image  += images/kernal.sx.251104-04.bin       0x03 0x0000 L
+    init_image  += images/kernal.901227-01.bin    0x00 0x0000 L
+    init_image  += images/kernal.901227-02.bin    0x01 0x0000 L
+    init_image  += images/kernal.901227-03.bin    0x02 0x0000 L
+    init_image  += images/kernal.sx.251104-04.bin 0x03 0x0000 L
 
-    init_image  += images/empty.bin                     0x10 0x0000 H
-    init_image  += images/empty.bin                     0x18 0x0000 L
-    init_image  += images/empty.bin                     0x18 0x0000 H
-    init_image  += images/empty.bin                     0x20 0x0000 L
-    init_image  += images/empty.bin                     0x20 0x0000 H
-    init_image  += images/empty.bin                     0x30 0x0000 L
-    init_image  += images/empty.bin                     0x30 0x0000 H
-    init_image  += images/empty.bin                     0x38 0x0000 L
-    init_image  += images/empty.bin                     0x38 0x0000 H
+    init_image  += images/empty.bin 0x10 0x0000 H
+    init_image  += images/empty.bin 0x18 0x0000 L
+    init_image  += images/empty.bin 0x18 0x0000 H
+    init_image  += images/empty.bin 0x20 0x0000 L
+    init_image  += images/empty.bin 0x20 0x0000 H
+    init_image  += images/empty.bin 0x30 0x0000 L
+    init_image  += images/empty.bin 0x30 0x0000 H
+    init_image  += images/empty.bin 0x38 0x0000 L
+    init_image  += images/empty.bin 0x38 0x0000 H
 else
-    init_image  += directory.bin                        0x10 0x0000 L
+    init_image  += directory.bin       0x10 0x0000 L
 
-    init_image  += images/exos.bin                      0x00 0x0000 L
-    init_image  += images/beast.bin                     0x01 0x0000 L
-    init_image  += images/ttn2crom.bin                  0x02 0x0000 L
+    init_image  += images/exos.bin     0x00 0x0000 L
+    init_image  += images/beast.bin    0x01 0x0000 L
+    init_image  += images/ttn2crom.bin 0x02 0x0000 L
 
-    init_image  += images/rr38ppal.bin                  0x10 0x0000 H
-    #init_image += images/apower.bin                    0x18 0x0000 H
-    init_image  += images/ar.bin                        0x18 0x0000 H
+    init_image  += images/rr38ppal.bin 0x10 0x0000 H
+    #init_image += images/apower.bin   0x18 0x0000 H
+    init_image  += images/ar.bin       0x18 0x0000 H
 
-    init_image  += images/empty.bin                     0x18 0x0000 L
-    #init_image += images/ss522-2-pal.bin               0x20 0x0000 LH
-    init_image  += images/empty.bin                     0x20 0x0000 L
-    init_image  += images/empty.bin                     0x20 0x0000 H
+    init_image  += images/empty.bin    0x18 0x0000 L
+    #init_image += images/ss522-2-pal.bin 0x20 0x0000 LH
+    init_image  += images/empty.bin    0x20 0x0000 L
+    init_image  += images/empty.bin    0x20 0x0000 H
 endif
 
-init_image      += images/empty.bin                     0x28 0x0000 L
-init_image      += images/empty.bin                     0x28 0x0000 H
-init_image      += images/empty.bin                     0x30 0x0000 L
-init_image      += images/empty.bin                     0x30 0x0000 H
-init_image      += images/empty.bin                     0x38 0x0000 L
-init_image      += images/empty.bin                     0x38 0x0000 H
+init_image      += images/empty.bin 0x28 0x0000 L
+init_image      += images/empty.bin 0x28 0x0000 H
+init_image      += images/empty.bin 0x30 0x0000 L
+init_image      += images/empty.bin 0x30 0x0000 H
+init_image      += images/empty.bin 0x38 0x0000 L
+init_image      += images/empty.bin 0x38 0x0000 H
 
 ###############################################################################
 # The menu image: Contains menu and tools
@@ -172,7 +176,7 @@ images/empty.bin:
 
 ###############################################################################
 #
-efmenu/efmenu.bin: always
+efmenu/efmenu.bin: libef3usb/Makefile always
 	$(MAKE) -C efmenu version=$(version)
 
 .PHONY: always
@@ -186,16 +190,12 @@ always:
 
 ###############################################################################
 #
-prgstart/prgstart.bin: always
+prgstart/prgstart.bin: libef3usb/Makefile always
 	$(MAKE) -C prgstart version=$(version)
 
-###############################################################################
-#
-$(easyprog): always
+$(easyprog): easyprog/Makefile always
 	$(MAKE) -C $(dir $@) release=$(release)
 
-###############################################################################
-#
 .PHONY: clean
 clean:
 	-rm -f mkimages

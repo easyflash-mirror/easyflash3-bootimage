@@ -6,13 +6,7 @@ name := efmenu
 
 version := none
 
-ld65_version := $(shell [ `ld65 -V 2>&1 | sed -e 's/\(ld65 V\)\([0-9\.]*\)\( .*\)/\2/g; q'` \< "2.13.9" ] && echo old)
-
-ifeq "$(ld65_version)" "old"
-        ld_config := src/ld.cfg
-else
-        ld_config := src/ld2.cfg
-endif
+ld_config := src/ld.cfg
 
 obj :=
 obj += obj/crt0.o
@@ -26,13 +20,15 @@ obj += obj/sound.o
 obj += obj/joy.o
 
 inc      := src
-inc      += ../libs/libef3usb/src
+inc      += ../libef3usb/src
 
 INCLUDE  := $(addprefix -I,$(inc))
 
 DEFINE   := -DEFVERSION=\"${version}\"
 
-libef3usb := ../libs/libef3usb/libef3usb.lib
+bin2efcrt := ../tools/bin2efcrt
+
+libef3usb := ../libef3usb/libef3usb.lib
 
 .PHONY: all
 all: $(name).crt
@@ -66,12 +62,15 @@ obj/charset.s: src/charset.sed | obj
 ###############################################################################
 # create a crt image from a binary image
 #
-%.crt: %.bin
-	../../EasySDK/tools/bin2efcrt $< $@
+%.crt: %.bin $(bin2efcrt)
+	$(bin2efcrt) $< $@
 
 ###############################################################################
 #
 $(libef3usb): force
+	$(MAKE) -C $(dir $@)
+
+$(bin2efcrt): force
 	$(MAKE) -C $(dir $@)
 
 .PHONY: force
